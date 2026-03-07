@@ -81,9 +81,8 @@ export async function runFilterSearch(params: {
   }
   if (params.suburb != null && params.suburb.trim()) {
     const suburbVal = params.suburb.trim();
-    const suburbRegex = { $regex: `^${suburbVal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' };
-    match.suburb = suburbRegex;
-    matchForDisplay.suburb = suburbRegex;
+    match.suburb = suburbVal;
+    matchForDisplay.suburb = suburbVal;
   }
   if (params.priceMin != null || params.priceMax != null) {
     const priceCond: Record<string, number> = {};
