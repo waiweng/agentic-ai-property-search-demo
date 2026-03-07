@@ -1,0 +1,82 @@
+.demo-walkthrough-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.demo-walkthrough-panel {
+  background: var(--bg-panel, #fff);
+  border-radius: var(--radius, 10px);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.08));
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-walkthrough-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+.demo-walkthrough-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text, #1e293b);
+}
+
+.demo-walkthrough-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.demo-walkthrough-close:hover {
+  color: var(--text, #1e293b);
+}
+
+.demo-walkthrough-body {
+  padding: 1.25rem 1.5rem;
+  overflow-y: auto;
+}
+
+.demo-walkthrough-steps {
+  margin: 0;
+  padding-left: 1.35rem;
+  color: var(--text, #1e293b);
+  line-height: 1.55;
+}
+
+.demo-walkthrough-steps li {
+  margin-bottom: 1rem;
+}
+
+.demo-walkthrough-steps li:last-child {
+  margin-bottom: 0;
+}
+
+.demo-walkthrough-steps strong {
+  color: var(--text, #1e293b);
+}
+
+.demo-walkthrough-steps ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.demo-walkthrough-steps ul li {
+  margin-bottom: 0.5rem;
+}

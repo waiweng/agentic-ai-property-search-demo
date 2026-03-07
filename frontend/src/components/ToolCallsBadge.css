@@ -1,0 +1,28 @@
+.tool-calls-badge {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.6rem;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.tool-calls-label {
+  color: #64748b;
+  margin-right: 0.15rem;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
+
+.tool-chip {
+  background: #0d9488;
+  color: white;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.75rem;
+}

@@ -1,0 +1,28 @@
+{
+  "name": "property_search",
+  "type": "search",
+  "definition": {
+    "mappings": {
+      "dynamic": false,
+      "fields": {
+        "bathrooms": {
+          "type": "number"
+        },
+        "bedrooms": {
+          "type": "number"
+        },
+        "embedding": {
+          "numDimensions": 1024,
+          "similarity": "cosine",
+          "type": "vector"
+        },
+        "location": {
+          "type": "geo"
+        },
+        "parking": {
+          "type": "number"
+        }
+      }
+    }
+  }
+}

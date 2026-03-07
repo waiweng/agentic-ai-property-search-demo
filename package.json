@@ -1,0 +1,12 @@
+{
+  "name": "agentic-property-search",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "start": "npm run build && concurrently -n backend,frontend -c blue,magenta \"PORT=4000 npm run start --prefix backend\" \"npm run preview --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
