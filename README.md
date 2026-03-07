@@ -119,9 +119,22 @@ Set:
 
 **Important:** Do not commit `.env` files; they are listed in `.gitignore`.
 
-### 3. MongoDB Atlas indexes
+### 3. Seed data (do this before creating Atlas indexes)
 
-Create these in your Atlas project (database `property_search`, collection `properties`):
+You need to seed the database **before** creating the MongoDB Atlas search indexes, so that the `property_search` database and `properties` collection exist and have the expected structure (including `embedding`, `location`, `suburb`, etc.).
+
+From the repo root:
+
+```bash
+cd backend
+npm run inject:all
+```
+
+This loads POIs, market data, and sample properties (with embeddings). Other scripts (see `backend/package.json`): `inject:james-ruse`, `inject:carlingford`, `inject:pois`, `inject:market`, `inject:properties`, etc.
+
+### 4. MongoDB Atlas indexes
+
+Create these in your Atlas project (database `property_search`, collection `properties`). The collection should already exist from step 3.
 
 1. **Vector + geo + filter index** (for chat and agent search):
    - In Atlas: **Search** → **Create Search Index** → **Atlas Search** (JSON Editor).
@@ -132,8 +145,9 @@ Create these in your Atlas project (database `property_search`, collection `prop
    - Index name: `property_suburb_autocomplete`. Use `backend/atlas-search-index-property-suburb-autocomplete.json` (autocomplete on `suburb`, edgeGram, minGrams 2, maxGrams 15, foldDiacritics).
    - Without it, location autocomplete falls back to a regex on `properties.suburb`.
 
+Note: `backend/atlas-vector-index.json` is not used by this app; you can ignore or delete it.
 
-### 4. Run the app
+### 5. Run the app
 
 **Development** (backend + frontend with hot reload):
 
@@ -155,17 +169,6 @@ npm start
 - Frontend preview: http://localhost:4173  
 
 If the API uses a different port (e.g. 4003), either free port 4000 (`lsof -ti:4000 | xargs kill -9`) and restart, or set `VITE_API_URL=http://localhost:4003` in `frontend/.env` and rebuild the frontend.
-
-### 5. Seed data (optional)
-
-To load POIs, market data, and sample properties (with embeddings):
-
-```bash
-cd backend
-npm run inject:all
-```
-
-Other scripts (see `backend/package.json`): `inject:james-ruse`, `inject:carlingford`, `inject:pois`, `inject:market`, `inject:properties`, etc.
 
 ---
 
