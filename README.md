@@ -141,11 +141,8 @@ Create these in your Atlas project (database `property_search`, collection `prop
    - Index name: `property_search`. Use the definition in `backend/atlas-search-index-lexical.json`.
    - Mapping: `embedding` (vector, 1024 dimensions, cosine similarity), `location` (geo), `bedrooms`, `bathrooms`, `parking` (number). The app uses this index for vector search with lexical prefilters (geo + bedrooms/bathrooms/parking).
 
-2. **Suburb autocomplete** (optional but recommended):
+2. **Suburb autocomplete** (required for the location field):
    - Index name: `property_suburb_autocomplete`. Use `backend/atlas-search-index-property-suburb-autocomplete.json` (autocomplete on `suburb`, edgeGram, minGrams 2, maxGrams 15, foldDiacritics).
-   - Without it, location autocomplete falls back to a regex on `properties.suburb`.
-
-Note: `backend/atlas-vector-index.json` is not used by this app; you can ignore or delete it.
 
 ### 5. Run the app
 
