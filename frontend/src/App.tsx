@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   getSessions,
   createSession,
@@ -7,6 +7,7 @@ import {
   getInitialProperties,
   searchByFilters,
   sendChat,
+  getEventsUrl,
   type Session,
   type ThreadMessage,
   type PropertySummary,
@@ -38,6 +39,7 @@ function App() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [demoWalkthroughOpen, setDemoWalkthroughOpen] = useState(false);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   const loadSessions = useCallback(async (uid: string) => {
     try {
@@ -73,6 +75,39 @@ function App() {
     loadThread(sessionId);
   }, [sessionId, loadThread]);
 
+  useEffect(() => {
+    if (!userId || !sessionId) {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+      return;
+    }
+    const url = getEventsUrl(userId, sessionId);
+    const es = new EventSource(url);
+    eventSourceRef.current = es;
+    es.addEventListener('new_property', (e: MessageEvent) => {
+      try {
+        const data = JSON.parse(e.data as string) as { message: string; property?: PropertySummary };
+        setMessages((prev) => [
+          ...prev,
+          { type: 'ai', content: data.message, timestamp: new Date().toISOString() },
+        ]);
+        if (data.property) {
+          setTop10((prev) => {
+            const has = prev.some((p) => p._id === data.property!._id);
+            if (has) return prev;
+            return [data.property!, ...prev].slice(0, 10);
+          });
+        }
+      } catch (_) {}
+    });
+    return () => {
+      es.close();
+      eventSourceRef.current = null;
+    };
+  }, [userId, sessionId]);
+
   const handleLogin = async () => {
     setError(null);
     try {
@@ -83,8 +118,18 @@ function App() {
       setSessionId(session.sessionId);
       setSessions([session]);
       setPrefs(prefs);
-      setTop10(initial);
-      setMessages([]);
+      setTop10(initial.properties);
+      if (initial.welcomeMessage && initial.properties.length > 0) {
+        setMessages([
+          {
+            type: 'ai',
+            content: initial.welcomeMessage,
+            timestamp: new Date().toISOString(),
+          },
+        ]);
+      } else {
+        setMessages([]);
+      }
     } catch (e) {
       console.error(e);
       setError(e instanceof Error ? e.message : 'Could not connect. Is the backend running on port 4000?');
@@ -118,6 +163,24 @@ function App() {
     setAggregationPipeline([]);
     setMarketEstimateQuery(null);
     if (!sid) setMessages([]);
+  };
+
+  const handleLogout = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+    setUserId(null);
+    setSessionId(null);
+    setSessions([]);
+    setMessages([]);
+    setTop10([]);
+    setFilterSearchResults([]);
+    setPipelineSteps([]);
+    setAggregationPipeline([]);
+    setMarketEstimateQuery(null);
+    setPrefs(null);
+    setError(null);
   };
 
   const handleFilterSearch = async (params: FilterSearchParams) => {
@@ -195,7 +258,16 @@ function App() {
           onPrefsSaved={(p) => {
             setPrefs(p);
             setError(null);
-            getInitialProperties(userId).then(setTop10);
+            getInitialProperties(userId).then((r) => {
+              setTop10(r.properties);
+              const savedMsg = p.savedMessage;
+              if (savedMsg) {
+                setMessages((prev) => [
+                  ...prev,
+                  { type: 'ai', content: savedMsg, timestamp: new Date().toISOString() },
+                ]);
+              }
+            });
           }}
           onSaveError={(msg) => setError(msg)}
           onSearch={handleFilterSearch}
@@ -219,6 +291,9 @@ function App() {
           </select>
           <button type="button" onClick={handleNewSession}>
             New conversation
+          </button>
+          <button type="button" onClick={handleLogout}>
+            Logout
           </button>
         </div>
       </header>

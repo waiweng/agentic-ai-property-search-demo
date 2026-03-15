@@ -93,7 +93,8 @@ preferencesRouter.post('/', async (req, res) => {
       { $set: update },
       { upsert: true }
     );
-    res.json(update);
+    const savedMessage = 'Here are the list of recommended properties based on what you saved.';
+    res.json({ ...update, savedMessage });
   } catch (e: any) {
     console.error(e);
     res.status(500).json({ error: e?.message || 'Server error' });
@@ -131,7 +132,13 @@ preferencesRouter.get('/initial-properties', async (req, res) => {
           (doc.priceMax == null || p.price <= doc.priceMax)
       );
     }
-    res.json({ properties: list.slice(0, 10) });
+    const top = list.slice(0, 10);
+    const suburb = prefs.suburbPreference;
+    const welcomeMessage =
+      top.length > 0
+        ? `Hi welcome back, I have found some recent property listings around ${suburb} that you have saved as part of your preferences since your last login.`
+        : '';
+    res.json({ properties: top, welcomeMessage });
   } catch (e: any) {
     console.error(e);
     res.status(500).json({ error: e?.message || 'Server error', properties: [] });

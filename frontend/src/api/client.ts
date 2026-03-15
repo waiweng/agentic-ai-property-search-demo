@@ -1,5 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
+export function getEventsUrl(userId: string, sessionId: string): string {
+  return `${API_URL}/api/events?userId=${encodeURIComponent(userId)}&sessionId=${encodeURIComponent(sessionId)}`;
+}
+
 export interface Session {
   userId: string;
   sessionId: string;
@@ -36,6 +40,7 @@ export interface Preferences {
   defaultRadiusKm: number;
   priceMin?: number;
   priceMax?: number;
+  savedMessage?: string;
 }
 
 export interface ChatResponse {
@@ -96,11 +101,19 @@ export async function savePreferences(userId: string, prefs: Partial<Preferences
   return res.json();
 }
 
-export async function getInitialProperties(userId: string): Promise<PropertySummary[]> {
+export interface InitialPropertiesResponse {
+  properties: PropertySummary[];
+  welcomeMessage: string;
+}
+
+export async function getInitialProperties(userId: string): Promise<InitialPropertiesResponse> {
   const res = await fetch(`${API_URL}/api/preferences/initial-properties?userId=${encodeURIComponent(userId)}`);
-  if (!res.ok) return [];
+  if (!res.ok) return { properties: [], welcomeMessage: '' };
   const data = await res.json();
-  return data.properties || [];
+  return {
+    properties: data.properties || [],
+    welcomeMessage: data.welcomeMessage || '',
+  };
 }
 
 export async function searchByFilters(params: {

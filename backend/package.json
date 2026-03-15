@@ -16,7 +16,8 @@
     "inject:carlingford": "ts-node scripts/inject-properties-carlingford.ts",
     "seed:properties": "ts-node scripts/seed-properties-collection.ts",
     "seed:from-json": "ts-node scripts/seed-from-json.ts",
-    "test:search": "ts-node scripts/test-search.ts"
+    "test:search": "ts-node scripts/test-search.ts",
+    "insert:one-carlingford": "ts-node scripts/insert-one-carlingford.ts"
   },
   "dependencies": {
     "@langchain/core": "^0.3.0",

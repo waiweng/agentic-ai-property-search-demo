@@ -60,7 +60,7 @@ flowchart LR
 ## Prerequisites
 
 - **Node.js** 18+ and npm
-- **MongoDB Atlas** cluster (free tier is fine)
+- **MongoDB Atlas** cluster (free tier is fine). Atlas uses replica sets by default, so change streams (real-time new-listing notifications) work out of the box.
 - **Voyage AI** API key (embeddings + reranker)
 - **Google Cloud** project with Vertex AI enabled (for the chat model)
 - **Google Maps JavaScript API** key (for the map in the frontend)
@@ -146,16 +146,7 @@ Create these in your Atlas project (database `property_search`, collection `prop
 
 ### 5. Run the app
 
-**Development** (backend + frontend with hot reload):
-
-```bash
-npm run dev
-```
-
-- API: http://localhost:4000 (or next free port if 4000 is in use)
-- Frontend: http://localhost:5173
-
-**Production build and run:**
+**Production** (build then start backend and frontend):
 
 ```bash
 npm run build
@@ -163,7 +154,9 @@ npm start
 ```
 
 - API: http://localhost:4000  
-- Frontend preview: http://localhost:4173  
+- Frontend: http://localhost:4173  
+
+For **local development** with hot reload, use `npm run dev` instead (API on 4000, frontend on 5173).
 
 If the API uses a different port (e.g. 4003), either free port 4000 (`lsof -ti:4000 | xargs kill -9`) and restart, or set `VITE_API_URL=http://localhost:4003` in `frontend/.env` and rebuild the frontend.
 
@@ -190,6 +183,25 @@ agentic-property-search/
 - Default saved preferences: 2 bed, 2 bath, 1 parking, near Carlingford (5 km from centre).
 - Sessions and threads are stored in MongoDB; after “logout” and “login” you can resume by selecting a session.
 - The agent asks for bedroom count when missing, treats “2 bedroom” (or similar) as the answer and runs search; map shows results with valid coordinates.
+
+---
+
+## Change streams (optional)
+
+The app uses **MongoDB Change Streams** to react to new property inserts. When a listing is added that matches a logged-in user's saved preferences (suburb, bedrooms, bathrooms, parking, price), the agent pushes a real-time message in the same session.
+
+**How to run the demo:**
+
+1. Start the app (`npm run build` then `npm start`) and open the frontend at http://localhost:4173 in your browser.
+2. Click **Login as buyer** so you have an active session and the SSE connection is open.
+3. In another terminal, from the project root run:
+   ```bash
+   npm run insert:one-carlingford --prefix backend
+   ```
+   This inserts one property in Carlingford (2 bed, 2 bath, 1 parking) matching the default preferences.
+4. Watch the chat: the agent should nudge you with a message like *"Hey there's new property listed in your saved area based on bedrooms, bathrooms, parking and within the price that's set—thought you might have a look"*, and the new listing appears in the recommendations list.
+
+Change streams require a replica set (MongoDB Atlas uses replica sets by default). If the backend cannot start the stream, it logs a warning and the rest of the app still runs.
 
 ---
 

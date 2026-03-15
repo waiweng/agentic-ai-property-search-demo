@@ -15,6 +15,9 @@ import { preferencesRouter } from './routes/preferences';
 import { searchRouter } from './routes/search';
 import { placesRouter } from './routes/places';
 import { marketRouter } from './routes/market';
+import { eventsRouter } from './routes/events';
+import { startPropertiesChangeStream } from './services/change-stream';
+import { broadcastToUser } from './lib/active-sessions';
 
 const PORT = process.env.PORT || 4000;
 const app = express();
@@ -35,6 +38,7 @@ app.use('/api/sessions', sessionsRouter);
 app.use('/api/preferences', preferencesRouter);
 app.use('/api/search', searchRouter);
 app.use('/api/places', placesRouter);
+app.use('/api/events', eventsRouter);
 app.use('/api', marketRouter);
 
 async function main() {
@@ -42,6 +46,9 @@ async function main() {
     await getDb();
     await ensureIndexes();
     console.log(`✅ MongoDB connected (db: ${DB_NAME}), indexes ensured`);
+    startPropertiesChangeStream((userId, payload) => {
+      broadcastToUser(userId, 'new_property', payload);
+    });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error('⚠️ MongoDB unavailable:', msg);
